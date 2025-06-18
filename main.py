@@ -1,0 +1,132 @@
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, Date
+from fastapi import FastAPI, Depends, HTTPException
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from typing import Annotated, List
+from fastapi import Body
+from datetime import date
+from fastapi.middleware.cors import CORSMiddleware
+
+
+# Define the FastAPI application
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 👈 allows any origin (you can later restrict this)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+
+# Database configuration
+DATABASE_URL = "postgresql://todouser:securepassword@localhost/tododb"
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Dependency to get the database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Create the base class for declarative models
+
+Base = declarative_base()
+
+class Todo(Base):
+    __tablename__ = "todos"  # name of the table in PostgreSQL
+
+    id = Column(Integer, primary_key=True, index=True)
+    text = Column(String, nullable=False)
+    date = Column(Date, nullable=False)
+
+# Pydantic model for Todo item
+class TodoCreate(BaseModel):
+    text: str
+    date: date # Pydantic will auto-parse from "2025-06-21"
+
+class TodoRead(BaseModel):
+    id: int
+    text: str
+    date: date
+
+    class Config:
+        orm_mode = True
+
+class TodoUpdate(BaseModel):
+    text: str
+    date: date
+
+
+    class Config:
+        orm_mode = True
+
+
+
+@app.post("/todos/", response_model=TodoCreate)
+def create_todo(todo: Annotated[TodoCreate, Body()], db: Session = Depends(get_db)):
+    db_todo = Todo(text=todo.text, date=todo.date)
+    db.add(db_todo)
+    db.commit()
+    db.refresh(db_todo)
+    return db_todo
+
+
+@app.get("/todos/", response_model=List[TodoRead])
+def get_todos(db: Session = Depends(get_db)):
+    todos = db.query(Todo).all()
+    return todos
+
+
+@app.put("/todos/{todo_id}", response_model=TodoRead)
+def update_todo(todo_id: int, updated: TodoUpdate, db: Session = Depends(get_db)):
+    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if not db_todo:
+        raise HTTPException(status_code=404, detail="To-do not found")
+
+    db_todo.text = updated.text  # type: ignore
+    db_todo.date = updated.date  # type: ignore
+
+    db.commit()
+    db.refresh(db_todo)
+
+    return db_todo
+
+
+@app.delete("/todos/{todo_id}")
+def delete_todo(todo_id: int, db: Session = Depends(get_db)):
+    db_todo = db.query(Todo).filter(Todo.id == todo_id).first()
+    
+    if not db_todo:
+        raise HTTPException(status_code=404, detail="To-do not found")
+    
+    db.delete(db_todo)
+    db.commit()
+    
+    return { "message": f"To-do with ID {todo_id} deleted." }
+
+
+@app.delete("/todos/all")
+def delete_all_todos(db: Session = Depends(get_db)):
+    deleted = db.query(Todo).delete()
+    db.commit()
+    return { "message": f"Deleted {deleted} to-do(s)." }
+
+
+# Create the database tables
+def init_db():
+    Base.metadata.create_all(bind=engine)   
+    # This function can be called to initialize the database
+
+if __name__ == "__main__":
+    init_db()  # Initialize the database when this script is run directly
+    print("Database initialized successfully.")
