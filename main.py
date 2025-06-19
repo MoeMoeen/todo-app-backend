@@ -42,8 +42,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Create the base class for declarative models
 Base = declarative_base()
 
-Base.metadata.create_all(bind=engine)  # Create tables in the database
-
 
 # Dependency to get the database session
 def get_db():
@@ -59,6 +57,10 @@ class Todo(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(String, nullable=False)
     date = Column(Date, nullable=False)
+
+
+Base.metadata.create_all(bind=engine)  # Create tables in the database
+# Ensure the database tables are created before running the app
 
 # Pydantic model for Todo item
 class TodoCreate(BaseModel):
