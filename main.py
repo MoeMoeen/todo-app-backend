@@ -32,7 +32,7 @@ DATABASE_URL = os.environ.get(
     "postgresql://todouser:securepassword@localhost/tododb"  # fallback for local dev
 )
 
-print("DATABASE_URL:", DATABASE_URL)
+# print("DATABASE_URL:", DATABASE_URL)
 # Ensure the DATABASE_URL is set correctly
 
 # Database configuration
