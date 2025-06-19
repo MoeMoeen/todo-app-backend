@@ -9,6 +9,9 @@ from typing import Annotated, List
 from fastapi import Body
 from datetime import date
 from fastapi.middleware.cors import CORSMiddleware
+import os
+
+
 
 
 # Define the FastAPI application
@@ -23,9 +26,16 @@ app.add_middleware(
 )
 
 
+# ⬇️ NEW: Use env variable first, fallback to local DB (useful when testing locally)
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://todouser:securepassword@localhost/tododb"  # fallback for local dev
+)
+
+print("DATABASE_URL:", DATABASE_URL)
+# Ensure the DATABASE_URL is set correctly
 
 # Database configuration
-DATABASE_URL = "postgresql://todouser:securepassword@localhost/tododb"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
