@@ -39,6 +39,12 @@ print("DATABASE_URL:", DATABASE_URL)
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Create the base class for declarative models
+Base = declarative_base()
+
+Base.metadata.create_all(bind=engine)  # Create tables in the database
+
+
 # Dependency to get the database session
 def get_db():
     db = SessionLocal()
@@ -46,10 +52,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-# Create the base class for declarative models
-
-Base = declarative_base()
 
 class Todo(Base):
     __tablename__ = "todos"  # name of the table in PostgreSQL
