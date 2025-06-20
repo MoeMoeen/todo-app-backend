@@ -59,8 +59,10 @@ class Todo(Base):
     date = Column(Date, nullable=False)
 
 
-Base.metadata.create_all(bind=engine)  # Create tables in the database
-# Ensure the database tables are created before running the app
+# Base.metadata.create_all(bind=engine)  # Create tables in the database
+# # Ensure the database tables are created before running the app
+
+
 
 # Pydantic model for Todo item
 class TodoCreate(BaseModel):
