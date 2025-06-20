@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, Boolean
 from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -57,6 +57,7 @@ class Todo(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(String, nullable=False)
     date = Column(Date, nullable=False)
+    completed = Column(Boolean, nullable=False, default=False)  # Optional: add a completed field   
 
 
 # Base.metadata.create_all(bind=engine)  # Create tables in the database
