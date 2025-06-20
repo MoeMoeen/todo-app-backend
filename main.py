@@ -144,5 +144,5 @@ def init_db():
     # This function can be called to initialize the database
 
 if __name__ == "__main__":
-    init_db()  # Initialize the database when this script is run directly
+    # init_db()  # Initialize the database when this script is run directly
     print("Database initialized successfully.")
