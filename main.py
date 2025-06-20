@@ -74,6 +74,7 @@ class TodoRead(BaseModel):
     id: int
     text: str
     date: date
+    completed: bool = False  # Optional: include completed field in the response
 
     class Config:
         orm_mode = True
