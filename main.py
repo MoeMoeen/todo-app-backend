@@ -74,7 +74,7 @@ class TodoRead(BaseModel):
     id: int
     text: str
     date: date
-    completed: bool = False  # Optional: include completed field in the response
+    completed: bool = False  # include completed field in the response
 
     class Config:
         orm_mode = True
@@ -82,6 +82,7 @@ class TodoRead(BaseModel):
 class TodoUpdate(BaseModel):
     text: str
     date: date
+    completed: bool = False  #  👈 allow toggling completion status
 
 
     class Config:
@@ -113,6 +114,8 @@ def update_todo(todo_id: int, updated: TodoUpdate, db: Session = Depends(get_db)
 
     db_todo.text = updated.text  # type: ignore
     db_todo.date = updated.date  # type: ignore
+    db_todo.completed = updated.completed # type: ignore
+
 
     db.commit()
     db.refresh(db_todo)
