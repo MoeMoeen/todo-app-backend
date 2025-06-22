@@ -102,7 +102,7 @@ def create_todo(todo: Annotated[TodoCreate, Body()], db: Session = Depends(get_d
 
 @app.get("/todos/", response_model=List[TodoRead])
 def get_todos(db: Session = Depends(get_db)):
-    todos = db.query(Todo).all()
+    todos = db.query(Todo.date.asc()).all()
     return todos
 
 
