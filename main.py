@@ -57,7 +57,7 @@ class Todo(Base):
     id = Column(Integer, primary_key=True, index=True)
     text = Column(String, nullable=False)
     date = Column(Date, nullable=False)
-    completed = Column(Boolean, nullable=False, default=False)  # Optional: add a completed field   
+    completed = Column(Boolean, nullable=False, default=False)  # add a completed field   
 
 
 # Base.metadata.create_all(bind=engine)  # Create tables in the database
@@ -69,6 +69,7 @@ class Todo(Base):
 class TodoCreate(BaseModel):
     text: str
     date: date # Pydantic will auto-parse from "2025-06-21"
+    completed: bool = False  # default to False, can be toggled later
 
 class TodoRead(BaseModel):
     id: int
@@ -90,7 +91,7 @@ class TodoUpdate(BaseModel):
 
 
 
-@app.post("/todos/", response_model=TodoCreate)
+@app.post("/todos/", response_model=TodoRead)
 def create_todo(todo: Annotated[TodoCreate, Body()], db: Session = Depends(get_db)):
     db_todo = Todo(text=todo.text, date=todo.date)
     db.add(db_todo)
