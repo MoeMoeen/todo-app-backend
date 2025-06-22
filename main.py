@@ -102,7 +102,8 @@ def create_todo(todo: Annotated[TodoCreate, Body()], db: Session = Depends(get_d
 
 @app.get("/todos/", response_model=List[TodoRead])
 def get_todos(db: Session = Depends(get_db)):
-    todos = db.query(Todo.date.asc()).all()
+    # todos = db.query(Todo.date.asc()).all()
+    todos = db.query(Todo).order_by(Todo.date.asc()).all()  # Order by date ascending
     return todos
 
 
