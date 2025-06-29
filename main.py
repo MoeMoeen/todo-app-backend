@@ -32,9 +32,6 @@ DATABASE_URL = os.environ.get(
     "postgresql://todouser:securepassword@localhost/tododb"  # fallback for local dev
 )
 
-# print("DATABASE_URL:", DATABASE_URL)
-# Ensure the DATABASE_URL is set correctly
-
 # Database configuration
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -62,7 +59,6 @@ class Todo(Base):
 
 # Base.metadata.create_all(bind=engine)  # Create tables in the database
 # # Ensure the database tables are created before running the app
-
 
 
 # Pydantic model for Todo item
