@@ -155,6 +155,23 @@ async def get_task_insights(request: TasksRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@app.get("/todos/insights")
+def generate_insights_from_db(db: Session = Depends(get_db)):
+    """
+    Fetch all todos from the DB and return AI-generated prioritization.
+    """
+    todos = db.query(Todo).order_by(Todo.date.asc()).all()
+
+    if not todos:
+        return {"insights": "There are no todos in the system to analyze."}
+
+    task_texts = [getattr(todo, "text") for todo in todos]
+    ai_response = get_task_priorities(task_texts)
+    return {"insights": ai_response}
+
+
+
 # Create the database tables
 def init_db():
     Base.metadata.create_all(bind=engine)   
